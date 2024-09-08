@@ -24,13 +24,18 @@ gzip
 unrar
 unzip
 
-neovim
 starship
 zoxide
 direnv
 tmux
 htop
 neofetch
+
+neovim
+ImageMagick
+libmagick
+libmagick-devel
+
 rclone
 
 gcc
@@ -38,6 +43,7 @@ lua
 LuaJIT
 luarocks
 nodejs
+pnpm
 python3
 python3-pip
 python3-ipython
@@ -54,6 +60,11 @@ cmake
 ninja
 meson
 
+dbus
+elogind
+lightdm
+lightdm-gtk-greeter
+
 xorg
 xclip
 xfce4
@@ -62,6 +73,8 @@ google-fonts-ttf
 freefont-ttf
 
 pipewire
+pipewire-pulse
+pulseaudio-utils
 
 piper
 
