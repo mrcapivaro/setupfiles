@@ -1,12 +1,16 @@
 #!/bin/bash
 
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
 help() {
   cat << EOF
-  Setup script for void-linux
+  ./setup.sh options arguments
   EOF
 }
 
-packages() { }
+packages() {
+  sudo xargs -a "$SCRIPT_DIR/packages/meta/packages.txt" xbps-install -Sy
+}
 
 configfiles() { }
 

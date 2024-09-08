@@ -2,12 +2,14 @@
 
 ## Install
 
-With `sudo void-installer` through the live xfce4 iso.
+Void Linux network base install with `sudo void-installer` through the live xfce4 iso.
 
 ### Post Install
 
-Add an user if not created(sometimes it happens).
-Run some fix scriptsif needed.
-Run the `setup.sh`.
-`restart` or `poweroff`(`sudo shutdown now` results in an error for some reason).
-
+1. Add an user if not created(sometimes void-installer does not create an
+   user).
+2. Run some fix scripts if needed(e.g:: fix-fonts.sh for fixing 'ugly' fonts in
+   browsers).
+3. Run the `setup.sh`.
+4. `restart` or `poweroff`(`sudo shutdown now` results in an error for some
+   reason).
