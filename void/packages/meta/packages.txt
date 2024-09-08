@@ -1,4 +1,5 @@
 void-repo-nonfree
+xtools
 
 git
 github-cli
