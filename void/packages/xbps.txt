@@ -10,12 +10,15 @@ curl
 
 sed
 jq
+yq
 fzf
 fd
 ripgrep
 
 bat
 less
+nvimpager
+glow
 
 tar
 xf
@@ -25,6 +28,7 @@ gzip
 unrar
 unzip
 
+chezmoi
 starship
 zoxide
 direnv
