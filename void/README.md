@@ -13,3 +13,7 @@ Void Linux network base install with `sudo void-installer` through the live xfce
 3. Run the `setup.sh`.
 4. `restart` or `poweroff`(`sudo shutdown now` results in an error for some
    reason).
+
+## TODO
+
+- [ ] [AppArmor](https://www.reddit.com/r/voidlinux/comments/mbghby/apparmor_setupconfig_help/)

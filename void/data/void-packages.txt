@@ -1,5 +1,13 @@
+#
+# xbps.txt: packages to install using xbps-install through setup.sh
+#
+
+# === Command Line Interface ===
+
+# == Void Stuff ==
 void-repo-nonfree
 xtools
+#
 
 git
 github-cli
@@ -44,6 +52,19 @@ libmagick-devel
 
 rclone
 
+# == crontab ==
+cronie
+#
+
+# == logging ==
+socklog-void
+#
+
+# == Security ==
+apparmor
+#
+
+# == Programming Languages & Dev. Tools ==
 gcc
 lua
 LuaJIT
@@ -65,8 +86,9 @@ make
 cmake
 ninja
 meson
+#
 
-## GUI ##
+# === Graphical User Interface ===
 
 dbus
 tlp

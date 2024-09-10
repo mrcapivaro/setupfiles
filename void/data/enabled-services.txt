@@ -1,0 +1,4 @@
+dhcpcd         # not enabled on some fresh installs
+crond          # cronie renames to cron on post_install()
+socklog-void   # for socklog
+nanoklogd      # for socklog
