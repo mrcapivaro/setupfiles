@@ -33,6 +33,7 @@ starship
 zoxide
 direnv
 tmux
+zellij
 htop
 neofetch
 
@@ -65,8 +66,14 @@ cmake
 ninja
 meson
 
+## GUI ##
+
 dbus
+tlp
+tlpui
+acpid
 elogind
+polkit
 lightdm
 lightdm-gtk-greeter
 

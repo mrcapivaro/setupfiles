@@ -2,7 +2,7 @@
 set -e
 
 CONFIG_PATH="$HOME/.config/firefox"
-PROFILES_PATH="$HOME/.mozilla/firefox"
+PROFILES_PATH="$HOME/.var/app/io.github.zen_browser.zen/.zen"
 DEF_PROF_NAME=$(awk -F= '/^Default=/ { print $2 }' "$PROFILES_PATH/installs.ini")
 DEF_PROF_PATH="$PROFILES_PATH/$DEF_PROF_NAME"
 

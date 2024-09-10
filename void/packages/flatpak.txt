@@ -1,3 +1,4 @@
 md.obsidian.Obsidian
 com.spotify.Client
 com.discordapp.Discord
+io.github.zen_browser.zen
