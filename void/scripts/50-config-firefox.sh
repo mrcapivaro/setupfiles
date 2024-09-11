@@ -9,4 +9,3 @@ DEF_PROF_PATH="$PROFILES_PATH/$DEF_PROF_NAME"
 for file in "$CONFIG_PATH"/*; do
 	ln -s "$file" "$DEF_PROF_PATH"
 done
-

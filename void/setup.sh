@@ -8,17 +8,18 @@ packages() {
 	echo "Installing packages"
 	echo "==================="
 
+	sudo xbps-install -Sy void-repo-multilib void-repo-nonfree
 	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/void-packages.conf" |
 		xargs sudo xbps-install -Sy
 
-	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/npm-packages.conf" |
-		xargs -n1 sudo npm install -g
+	# awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/npm-packages.conf" |
+	# 	xargs -n1 sudo npm install -g
 
 	flatpak remote-add --if-not-exists \
 		flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/flatpak-packages.conf" |
-		xargs -n1 flatpak install -assumeyes flathub
+		xargs -n1 flatpak install --assumeyes flathub
 
 	rustup default stable
 }
@@ -105,9 +106,9 @@ main() {
 	echo "======================="
 
 	# sudo xbps-install -Syu
-	# packages
+	packages
 	# configfiles
-	services
+	# services
 
 	echo ""
 	echo "Finished"
