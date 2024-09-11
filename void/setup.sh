@@ -8,16 +8,16 @@ packages() {
 	echo "Installing packages"
 	echo "==================="
 
-	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/void-packages.txt" |
+	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/void-packages.conf" |
 		xargs sudo xbps-install -Sy
 
-	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/npm-packages.txt" |
+	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/npm-packages.conf" |
 		xargs -n1 sudo npm install -g
 
 	flatpak remote-add --if-not-exists \
 		flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/flatpak-packages.txt" |
+	awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/flatpak-packages.conf" |
 		xargs -n1 flatpak install -assumeyes flathub
 
 	rustup default stable
@@ -59,9 +59,15 @@ configfiles() {
 enable_service() {
 	# SRC="/etc/sv"
 	# TARGET="/var/service"
-	SRC="$SCRIPT_DIR/src"
-	TARGET="$SCRIPT_DIR/tgt"
+	SRC="$SCRIPT_DIR/tests/src"
+	TARGET="$SCRIPT_DIR/tests/target"
 	SERVICE="$1"
+
+	# echo "SRC: $SRC"
+	# echo "TARGET: $TARGET"
+	# echo "SERVICE: $SERVICE"
+	# echo "PATH: $SRC/$SERVICE"
+
 	if [ -d "$SRC/$SERVICE" ]; then
 		if [ -d "$TARGET/$SERVICE" ]; then
 			echo "Skipping: $SERVICE (already enabled)"
@@ -70,31 +76,35 @@ enable_service() {
 			ln -s "$SRC/$SERVICE" "$TARGET/$SERVICE"
 		fi
 	else
-		echo "$SRC"
 		echo "Skipping: $SERVICE (service not found)"
 	fi
 }
 
 services() {
 	echo ""
-	echo "Enabling Services"
+	echo "Config Services"
 	echo "================="
 
-	# TODO: reason why this does not work
-	# SERVICES=$(awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/enabled-services.txt")
-	# for service in "$SERVICES"; do
-	# 	enable_service "$service"
-	# done
+	ENABLED_SERVICES=$(awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/enabled-services.conf")
+	DISABLED_SERVICES=$(awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/disabled-services.conf")
 
-	while IFS= read -r service; do
-		enable_service "$service"
-	done < <(awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/enabled-services.txt")
+	echo "$ENABLED_SERVICES" | xargs echo
+	# while IFS= read -r service; do
+	# 	[ -z "$service" ] && continue
+	# 	echo "$service"
+	# 	# enable_service "$service"
+	#  done < "$ENABLED_SERVICES"
+
+	# while IFS= read -r service; do
+	# 	disable_service "$service"
+	# done < <(awk -F# '!/^#/ { print $1 }' "$SCRIPT_DIR/data/disabled-services.conf")
 }
 
 main() {
 	echo "Void Linux Setup Script"
 	echo "======================="
 
+	# sudo xbps-install -Syu
 	# packages
 	# configfiles
 	services
