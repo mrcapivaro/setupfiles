@@ -1,0 +1,7 @@
+acpid
+tlp
+tlpui
+
+libspa-bluetooth
+bluez
+blueman

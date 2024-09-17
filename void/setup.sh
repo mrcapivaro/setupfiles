@@ -3,10 +3,14 @@ set -e
 
 # SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
+header() {
+  echo ""
+  echo "$@"
+  echo "---"
+}
+
 update_and_add_repos_xbps() {
-	echo ""
-	echo "Update system, add repos & other void tools"
-	echo "---"
+	header "Update system, add repos & other void tools"
 	sudo xbps-install -Syu
 	sudo xbps-install -y void-repo-multilib void-repo-nonfree \
 		void-repo-multilib-nonfree xtools
@@ -48,6 +52,15 @@ update_and_add_repos_xbps() {
 #
 # https://docs.voidlinux.org/config/services/index.html
 
+# === Logging 3.5.2 ===
+#
+# https://docs.voidlinux.org/config/services/logging.html
+setup_logging() {
+  header "Setup Logging"
+  sudo ln -sf /etc/sv/nanoklogd /var/service
+  sudo ln -sf /etc/sv/socklog-unix /var/service
+}
+
 # === rc.conf, rc.local & rc.shutdown - 3.6 ===
 #
 # https://docs.voidlinux.org/config/rc-files.html
@@ -87,6 +100,7 @@ setup_apparmor() {
 	echo ""
 	echo "Setup AppArmor"
 	echo "---"
+  sudo xbps-install -s apparmor
 	if ! grep -q "apparmor=1 security=apparmor" /etc/default/grub; then
 		sudo cp /etc/default/grub /etc/default/grub.bak
 		sudo sed -i \
@@ -130,8 +144,8 @@ setup_power() {
 	echo "Setup Power Management"
 	echo "---"
 	sudo xbps-install -y acpid tlp tlpui
-  # disable elogind acpid management
-  sudo mkdir -p /etc/elogind/logind.conf.d
+	# disable elogind acpid management
+	sudo mkdir -p /etc/elogind/logind.conf.d
 	sudo tee /etc/elogind/logind.conf.d/60-disable-acpid-events.conf >/dev/null <<EOF
 [Login]
 HandlePowerKey=ignore
@@ -194,7 +208,7 @@ setup_graphics_drivers() {
 	echo "Setup Graphics Drivers"
 	echo "---"
 	if lspci | grep -qi "nvidia"; then
-    sudo xbps-install -s nvidia nvidia-libs-32bit
+		sudo xbps-install -s nvidia nvidia-libs-32bit
 	fi
 }
 
@@ -207,15 +221,15 @@ setup_xorg() {
 	echo ""
 	echo "Setup XDG"
 	echo "---"
-  sudo xbps-install -s xorg xclip
-  # force modesetting drivers
-#   sudo mkdir -p /etc/X11/xorg.conf.d/
-#   sudo tee /etc/X11/xorg.conf.d/10-modesetting.conf >/dev/null <<EOF
-# Section "Device"
-#   Identifier "GPU0"
-#   Driver "modesetting"
-# EndSection
-EOF
+	sudo xbps-install -s xorg xclip
+	# force modesetting drivers
+	#   sudo mkdir -p /etc/X11/xorg.conf.d/
+	#   sudo tee /etc/X11/xorg.conf.d/10-modesetting.conf >/dev/null <<EOF
+	# Section "Device"
+	#   Identifier "GPU0"
+	#   Driver "modesetting"
+	# EndSection
+	EOF
 }
 
 # === Display Manager & Window Manager ===
@@ -223,7 +237,7 @@ setup_dm_wm() {
 	echo ""
 	echo "Setup Display Manager & Window Manager"
 	echo "---"
-	sudo xbps-install sddm awesome
+	sudo xbps-install lightdm lightdm-gtk3-greeter awesome
 	# enable display manager service
 	sudo ln -sf /etc/sv/sddm /var/service
 	# ensure that the awesome wm starts with dbus-run-session
@@ -255,10 +269,12 @@ change_icons() {
 	echo ""
 	echo "Change icons"
 	echo "---"
-  sudo xbps-install -y gtk+ gtk+3 gtk4 papirus-icon-theme
+	sudo xbps-install -y gtk+ gtk+3 gtk4 papirus-icon-theme
 }
 
 # === Cursor ===
+#
+# Requires changes in ~/.xinitrc and ~/.Xresources also
 change_cursor() {
 	echo ""
 	echo "Change cursor"
@@ -314,9 +330,9 @@ setup_bluetooth() {
 	echo ""
 	echo "Setup Bluetooth"
 	echo "---"
-  # rfkill | grep -q "bluetooth.* blocked" && rfkill unblock bluetooth
-  sudo xbps-install -s libspa-bluetooth bluez blueman # blueman?
-  sudo ln -sh /etc/sv/bluetoothd /var/service
+	# rfkill | grep -q "bluetooth.* blocked" && rfkill unblock bluetooth
+	sudo xbps-install -s libspa-bluetooth bluez blueman # blueman?
+	sudo ln -sh /etc/sv/bluetoothd /var/service
 }
 
 # === Printing - 3.21 ===
@@ -326,9 +342,9 @@ setup_printing() {
 	echo ""
 	echo "Setup Printing"
 	echo "---"
-  sudo xbps-install -s cups cups-filters hplip
-  sudo ln -sf /etc/sv/cupsd /var/service
-  echo "Run hp-setup -i to finish printing drivers install"
+	sudo xbps-install -s cups cups-filters hplip
+	sudo ln -sf /etc/sv/cupsd /var/service
+	echo "Run hp-setup -i to finish printing drivers install"
 }
 
 # === Mouse ===
@@ -359,20 +375,20 @@ main() {
 	setup_apparmor
 	setup_time
 	setup_session
-  setup_graphics_drivers
-  setup_xorg
+	setup_graphics_drivers
+	setup_xorg
 	setup_dm_wm
-  change_fonts
-  change_icons
-  change_cursor
-  setup_xdg
+	change_fonts
+	change_icons
+	change_cursor
+	setup_xdg
 	setup_audio
-  setup_printing
+	setup_printing
 	setup_mouse
 
-  # setup_ssd_trim # ssd only
+	# setup_ssd_trim # ssd only
 	# setup_power # laptop only
-  # setup_bluetooth
+	# setup_bluetooth
 
 	echo ""
 	echo "=== Void Linux setup.sh Finish ==="
