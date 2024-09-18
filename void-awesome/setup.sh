@@ -8,10 +8,14 @@ header() {
 	printf "\n$*\n$sep\n"
 }
 
-repos() {
+repos_setup() {
 	header "Add Repos"
-	sudo xbps-install -y void-repo-multilib void-repo-nonfree \
-		void-repo-multilib-nonfree xtools
+	local packages=(
+		"void-repo-nonfree"
+		"void-repo-multilib"
+		"void-repo-multilib-nonfree"
+	)
+	sudo xbps-install -y "${packages[@]}"
 }
 
 # === Configuration - 3.0 ===
@@ -20,20 +24,10 @@ repos() {
 # https://docs.voidlinux.org/config/index.html
 
 # === Package Documentation - 3.1 ===
-# Many packages have their documentation stored at `/usr/share/doc/<package>`.
-# Some packages have a separate package containing it's documentation. They are
-# named as <package>-doc.
 #
 # https://docs.voidlinux.org/config/package-documentation/index.html
 
 # === Firmware - 3.2 ===
-# AMD microcode package does not need configuration.
-# Intel microcode package needs configuration:
-#     - Regenerate `initramfs`;
-# I believe that all of this is done automatically on a fresh void-installer
-# setup, but I'm not sure. Might need to use `lscpu | grep -q "Intel/AMD" && \
-# sudo xbps-reconfigure --force linux-<version>` to
-# determine the cpu and act accordingly.
 #
 # https://docs.voidlinux.org/config/firmware.html
 
@@ -42,7 +36,6 @@ repos() {
 # https://docs.voidlinux.org/config/locales.html
 
 # === Users & Groups - 3.4 ===
-# Sometimes, the void-installer helper does not create an user.
 #
 # https://docs.voidlinux.org/config/users-and-groups.html
 
@@ -55,6 +48,7 @@ repos() {
 # https://docs.voidlinux.org/config/services/logging.html
 setup_logging() {
 	header "Setup Logging"
+	sudo xbps-install -y socklog-void
 	sudo ln -sf /etc/sv/nanoklogd /var/service
 	sudo ln -sf /etc/sv/socklog-unix /var/service
 }
@@ -64,11 +58,9 @@ setup_logging() {
 # https://docs.voidlinux.org/config/rc-files.html
 
 # === Cron - 3.7 ===
-# There are multiple cron implementations to choose from.
-# I chose `cronie`.
 #
 # https://docs.voidlinux.org/config/cron.html
-cron() {
+cron_setup() {
 	header "Setup Cron"
 	sudo xbps-install -y cronie
 	# cronie creates a symlink in /etc/sv named crond to cronie
@@ -78,7 +70,7 @@ cron() {
 # === SSD Trim - 3.8 ===
 #
 # https://docs.voidlinux.org/config/ssd.html
-ssd_trim() {
+ssd_setup() {
 	header "Setup Cron"
 	sudo tee /etc/cron.weekly/fstrim >/dev/null <<EOF
 #!/bin/sh
@@ -90,7 +82,7 @@ EOF
 # === AppArmor - 3.9.1 ===
 #
 # https://docs.voidlinux.org/config/security/apparmor.html
-apparmor() {
+apparmor_setup() {
 	header "Setup AppArmor"
 	sudo xbps-install -y apparmor
 	if ! grep -q "apparmor=1 security=apparmor" /etc/default/grub; then
@@ -107,7 +99,7 @@ apparmor() {
 # === Date & Time - 3.10 ===
 #
 # https://docs.voidlinux.org/config/date-time.html
-date() {
+date_setup() {
 	header "Setup Date & Time"
 	# ensure correct localtime
 	local my_localtime=/usr/share/zoneinfo/America/Sao_Paulo
@@ -125,11 +117,9 @@ date() {
 # https://docs.voidlinux.org/config/kernel.html
 
 # === Power Management - 3.12 ===
-# laptop only.
-# enabling acpid requires to disable elogind management of certain events.
 #
 # https://docs.voidlinux.org/config/power-management.html
-power_management() {
+power_setup() {
 	header "Setup Power Management"
 	sudo xbps-install -y acpid tlp tlpui
 	# disable elogind acpid management
@@ -174,7 +164,7 @@ setup_network() {
 # by normal users.
 #
 # https://docs.voidlinux.org/config/session-management.html
-session() {
+session_setup() {
 	header "Setup Session & Seat Management"
 	sudo xbps-install -y dbus elogind polkit
 	sudo ln -sf /etc/sv/dbus /var/service
@@ -185,7 +175,7 @@ session() {
 # === Graphics Drivers - 3.16.1 ===
 #
 # https://docs.voidlinux.org/config/graphical-yession/graphics-drivers/index.html
-graphics_drivers() {
+gpu_setup() {
 	header "Setup Graphics Drivers"
 	if lspci | grep -qi "nvidia"; then
 		sudo xbps-install -y nvidia nvidia-libs-32bit
@@ -193,11 +183,9 @@ graphics_drivers() {
 }
 
 # === Xorg - 3.16.2 ===
-# TODO:
-# Check if xorg is using nvidia ppd
 #
 # https://docs.voidlinux.org/config/graphical-yession/xorg.html
-xorg() {
+xorg_setup() {
 	header "Setup XDG"
 	sudo xbps-install -y xorg xclip
 	# force modesetting drivers
@@ -211,21 +199,21 @@ xorg() {
 }
 
 # === Display Manager & Window Manager ===
-dm_wm() {
+dm_wm_setup() {
 	header "Setup Display Manager & Window Manager"
 	sudo xbps-install lightdm lightdm-gtk-greeter awesome
 	# enable display manager service
 	sudo ln -sf /etc/sv/lightdm /var/service
 	# ensure that the awesome wm starts with dbus-run-yession
 	sudo sed -i \
-		'/^Exec=.*dbus-run-yession/!s/\(^Exec=\)\(.*\)/\1dbus-run-session \2/' \
+		'/^Exec=.*dbus-run-session/!s/\(^Exec=\)\(.*\)/\1dbus-run-session \2/' \
 		/usr/share/xsessions/awesome.desktop
 }
 
 # === Fonts - 3.16.4 ===
 #
 # https://docs.voidlinux.org/config/graphical-yession/fonts.html
-fonts() {
+fonts_setup() {
 	header "Change fonts"
 	local home_fonts_dir="$HOME/.local/share/fonts"
 	local chezmoi_fonts_dir="$HOME/.local/share/chezmoi/.other/fonts"
@@ -239,7 +227,7 @@ fonts() {
 # === Icons - 3.16.5 ===
 #
 # https://docs.voidlinux.org/config/graphical-yession/icons.html
-icons() {
+icons_setup() {
 	header "Change icons"
 	sudo xbps-install -y gtk+ gtk+3 gtk4 papirus-icon-theme
 }
@@ -247,7 +235,7 @@ icons() {
 # === Cursor ===
 #
 # Requires changes in ~/.xinitrc and ~/.Xresources also
-cursor() {
+cursor_setup() {
 	header "Change cursor"
 	sudo xbps-install -y breeze-cursors
 	# Change Mouse Cursor Theme
@@ -259,19 +247,16 @@ cursor() {
 # === XDG - 3.16.6 ===
 #
 # https://docs.voidlinux.org/config/graphical-yession/portals.html
-xdg() {
+xdg_setup() {
 	header "Setup XDG"
 	sudo xbps-install -y xdg-desktop-portal xdg-desktop-portal-gtk dex
 	# setup dex
 }
 
 # === Multimedia - Pipewire - 3.17.2 ===
-# src.: https://docs.voidlinux.org/config/media/pipewire.html
-# dsc.: pipewire + pulseaudio int. + alsa int.
-# req.: dbus user session bus         -> correct dm & wm config solves
-# === XDG_RUNTIME_DIR defined       -> elogind solves ===
-# === user with audio & video group -> elogind solves ===
-audio() {
+#
+# https://docs.voidlinux.org/config/media/pipewire.html
+audio_setup() {
 	header "Setup Audio with Pipewire & Integrations"
 	sudo xbps-install -y pipewire alsa-utils pulseaudio-utils pavucontrol alsa-pipewire
 	# enable wireplumber session manager
@@ -288,21 +273,19 @@ audio() {
 }
 
 # === Bluetooth - 3.18 ===
-# TODO:
-# Test on a machine with bluetooth
 #
 # https://docs.voidlinux.org/config/bluetooth.html
-bluetooth() {
+bluetooth_setup() {
 	header "Setup Bluetooth"
 	# rfkill | grep -q "bluetooth.* blocked" && rfkill unblock bluetooth
 	sudo xbps-install -y libspa-bluetooth bluez blueman # blueman?
-	sudo ln -sh /etc/sv/bluetoothd /var/service
+	sudo ln -sf /etc/sv/bluetoothd /var/service
 }
 
 # === Printing - 3.21 ===
 #
 # https://docs.voidlinux.org/config/print/index.html
-printing() {
+printing_setup() {
 	header "Setup Printing"
 	sudo xbps-install -y cups cups-filters hplip
 	sudo ln -sf /etc/sv/cupsd /var/service
@@ -310,7 +293,7 @@ printing() {
 }
 
 # === Mouse ===
-mouse() {
+mouse_setup() {
 	header "Setup Mouse"
 	sudo xbps-install -y piper libratbag
 	sudo ln -sf /etc/sv/ratbagd /var/service
@@ -330,34 +313,34 @@ EOF
 main() {
 	printf "=== Void Linux setup.sh Start ===\n"
 
-	repos
-	cron
-	apparmor
-	date
-	session
-	graphics_drivers
-	xorg
-	dm_wm
-	fonts
-	icons
-	cursor
-	xdg
-	audio
-	printing
-	mouse
+	repos_setup
+	cron_setup
+	apparmor_setup
+	date_setup
+	session_setup
+	gpu_setup
+	xorg_setup
+	dm_wm_setup
+	fonts_setup
+	icons_setup
+	cursor_setup
+	xdg_setup
+	audio_setup
+	printing_setup
+	mouse_setup
 
 	while [ "$1" != "" ]; do
 		case "$1" in
 		--bluetooth)
-			bluetooth
+			bluetooth_setup
 			shift
 			;;
 		--laptop)
-			power_management
+			power_setup
 			shift
 			;;
 		--ssd)
-			ssd_trim
+			ssd_setup
 			shift
 			;;
 		*)

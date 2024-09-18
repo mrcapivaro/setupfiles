@@ -18,11 +18,3 @@ Void Linux network base install with `sudo void-installer` through the live xfce
 4. Run the `setup.sh`.
 5. `restart` or `poweroff`(`sudo shutdown now` results in an error for some
    reason).
-
-## TODO
-
-- [ ] GPU Drivers
-
-## Interesting Links
-
-- [network options](https://www.reddit.com/r/voidlinux/comments/rapmhh/networkmanager_vs_wpa_supplicant/)
