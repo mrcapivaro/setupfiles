@@ -1,17 +1,15 @@
 #!/bin/bash
 set -e
 
-# SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
 header() {
-  echo ""
-  echo "$@"
-  echo "---"
+	local sep=$(printf "%*s" "$(echo -n "$*" | wc -m)" | tr ' ' '-')
+	printf "\n$*\n$sep\n"
 }
 
-update_and_add_repos_xbps() {
-	header "Update system, add repos & other void tools"
-	sudo xbps-install -Syu
+repos() {
+	header "Add Repos"
 	sudo xbps-install -y void-repo-multilib void-repo-nonfree \
 		void-repo-multilib-nonfree xtools
 }
@@ -56,9 +54,9 @@ update_and_add_repos_xbps() {
 #
 # https://docs.voidlinux.org/config/services/logging.html
 setup_logging() {
-  header "Setup Logging"
-  sudo ln -sf /etc/sv/nanoklogd /var/service
-  sudo ln -sf /etc/sv/socklog-unix /var/service
+	header "Setup Logging"
+	sudo ln -sf /etc/sv/nanoklogd /var/service
+	sudo ln -sf /etc/sv/socklog-unix /var/service
 }
 
 # === rc.conf, rc.local & rc.shutdown - 3.6 ===
@@ -70,10 +68,8 @@ setup_logging() {
 # I chose `cronie`.
 #
 # https://docs.voidlinux.org/config/cron.html
-setup_cron() {
-	echo ""
-	echo "Setup Cron"
-	echo "---"
+cron() {
+	header "Setup Cron"
 	sudo xbps-install -y cronie
 	# cronie creates a symlink in /etc/sv named crond to cronie
 	sudo ln -sf /etc/sv/crond /var/service
@@ -82,10 +78,8 @@ setup_cron() {
 # === SSD Trim - 3.8 ===
 #
 # https://docs.voidlinux.org/config/ssd.html
-setup_ssd_trim() {
-	echo ""
-	echo "Setup Cron"
-	echo "---"
+ssd_trim() {
+	header "Setup Cron"
 	sudo tee /etc/cron.weekly/fstrim >/dev/null <<EOF
 #!/bin/sh
 fstrim /
@@ -96,11 +90,9 @@ EOF
 # === AppArmor - 3.9.1 ===
 #
 # https://docs.voidlinux.org/config/security/apparmor.html
-setup_apparmor() {
-	echo ""
-	echo "Setup AppArmor"
-	echo "---"
-  sudo xbps-install -s apparmor
+apparmor() {
+	header "Setup AppArmor"
+	sudo xbps-install -y apparmor
 	if ! grep -q "apparmor=1 security=apparmor" /etc/default/grub; then
 		sudo cp /etc/default/grub /etc/default/grub.bak
 		sudo sed -i \
@@ -115,10 +107,8 @@ setup_apparmor() {
 # === Date & Time - 3.10 ===
 #
 # https://docs.voidlinux.org/config/date-time.html
-setup_time() {
-	echo ""
-	echo "Setup Date & Time"
-	echo "---"
+date() {
+	header "Setup Date & Time"
 	# ensure correct localtime
 	local my_localtime=/usr/share/zoneinfo/America/Sao_Paulo
 	sudo ln -sf "$my_localtime" /etc/localtime
@@ -139,10 +129,8 @@ setup_time() {
 # enabling acpid requires to disable elogind management of certain events.
 #
 # https://docs.voidlinux.org/config/power-management.html
-setup_power() {
-	echo ""
-	echo "Setup Power Management"
-	echo "---"
+power_management() {
+	header "Setup Power Management"
 	sudo xbps-install -y acpid tlp tlpui
 	# disable elogind acpid management
 	sudo mkdir -p /etc/elogind/logind.conf.d
@@ -166,9 +154,7 @@ EOF
 #
 # https://docs.voidlinux.org/config/network/index.html
 setup_network() {
-	echo ""
-	echo "Setup Network"
-	echo "---"
+	header "Setup Network"
 	sudo xbps-install -y connman connman-ncurses cmst iwd runnit-iptables
 	sudo unlink /var/service/dhcpcd
 	sudo unlink /var/service/wpa_supplicant
@@ -180,9 +166,7 @@ setup_network() {
 #
 # https://docs.voidlinux.org/config/network-filesystems.html
 # setup_nfs() {
-#   echo ""
-#   echo "Setup Network Filesystem"
-#   echo "---"
+#   header "Setup Network Filesystem"
 # }
 
 # === Session and Seat Management - 3.15 ===
@@ -190,10 +174,8 @@ setup_network() {
 # by normal users.
 #
 # https://docs.voidlinux.org/config/session-management.html
-setup_session() {
-	echo ""
-	echo "Setup Session & Seat Management"
-	echo "---"
+session() {
+	header "Setup Session & Seat Management"
 	sudo xbps-install -y dbus elogind polkit
 	sudo ln -sf /etc/sv/dbus /var/service
 	sudo ln -sf /etc/sv/elogind /var/service
@@ -202,13 +184,11 @@ setup_session() {
 
 # === Graphics Drivers - 3.16.1 ===
 #
-# https://docs.voidlinux.org/config/graphical-session/graphics-drivers/index.html
-setup_graphics_drivers() {
-	echo ""
-	echo "Setup Graphics Drivers"
-	echo "---"
+# https://docs.voidlinux.org/config/graphical-yession/graphics-drivers/index.html
+graphics_drivers() {
+	header "Setup Graphics Drivers"
 	if lspci | grep -qi "nvidia"; then
-		sudo xbps-install -s nvidia nvidia-libs-32bit
+		sudo xbps-install -y nvidia nvidia-libs-32bit
 	fi
 }
 
@@ -216,12 +196,10 @@ setup_graphics_drivers() {
 # TODO:
 # Check if xorg is using nvidia ppd
 #
-# https://docs.voidlinux.org/config/graphical-session/xorg.html
-setup_xorg() {
-	echo ""
-	echo "Setup XDG"
-	echo "---"
-	sudo xbps-install -s xorg xclip
+# https://docs.voidlinux.org/config/graphical-yession/xorg.html
+xorg() {
+	header "Setup XDG"
+	sudo xbps-install -y xorg xclip
 	# force modesetting drivers
 	#   sudo mkdir -p /etc/X11/xorg.conf.d/
 	#   sudo tee /etc/X11/xorg.conf.d/10-modesetting.conf >/dev/null <<EOF
@@ -229,30 +207,26 @@ setup_xorg() {
 	#   Identifier "GPU0"
 	#   Driver "modesetting"
 	# EndSection
-	EOF
+	# EOF
 }
 
 # === Display Manager & Window Manager ===
-setup_dm_wm() {
-	echo ""
-	echo "Setup Display Manager & Window Manager"
-	echo "---"
-	sudo xbps-install lightdm lightdm-gtk3-greeter awesome
+dm_wm() {
+	header "Setup Display Manager & Window Manager"
+	sudo xbps-install lightdm lightdm-gtk-greeter awesome
 	# enable display manager service
-	sudo ln -sf /etc/sv/sddm /var/service
-	# ensure that the awesome wm starts with dbus-run-session
+	sudo ln -sf /etc/sv/lightdm /var/service
+	# ensure that the awesome wm starts with dbus-run-yession
 	sudo sed -i \
-		'/^Exec=.*dbus-run-session/!s/\(^Exec=\)\(.*\)/\1dbus-run-session \2/' \
+		'/^Exec=.*dbus-run-yession/!s/\(^Exec=\)\(.*\)/\1dbus-run-session \2/' \
 		/usr/share/xsessions/awesome.desktop
 }
 
 # === Fonts - 3.16.4 ===
 #
-# https://docs.voidlinux.org/config/graphical-session/fonts.html
-change_fonts() {
-	echo ""
-	echo "Change fonts"
-	echo "---"
+# https://docs.voidlinux.org/config/graphical-yession/fonts.html
+fonts() {
+	header "Change fonts"
 	local home_fonts_dir="$HOME/.local/share/fonts"
 	local chezmoi_fonts_dir="$HOME/.local/share/chezmoi/.other/fonts"
 	if [ -d "$HOME/.local/share/chezmoi/.other/fonts/iosevka-capy" ]; then
@@ -264,35 +238,29 @@ change_fonts() {
 
 # === Icons - 3.16.5 ===
 #
-# https://docs.voidlinux.org/config/graphical-session/icons.html
-change_icons() {
-	echo ""
-	echo "Change icons"
-	echo "---"
+# https://docs.voidlinux.org/config/graphical-yession/icons.html
+icons() {
+	header "Change icons"
 	sudo xbps-install -y gtk+ gtk+3 gtk4 papirus-icon-theme
 }
 
 # === Cursor ===
 #
 # Requires changes in ~/.xinitrc and ~/.Xresources also
-change_cursor() {
-	echo ""
-	echo "Change cursor"
-	echo "---"
+cursor() {
+	header "Change cursor"
 	sudo xbps-install -y breeze-cursors
 	# Change Mouse Cursor Theme
 	local cursor_conf_dir=/usr/share/icons
 	sudo mkdir -p "$cursor_conf_dir/default"
-	sudo cp "$cursor_conf_dir/Breeze_Obisidian/index.theme" "$cursor_conf_dir/default"
+	sudo cp "$cursor_conf_dir/Breeze_Obsidian/index.theme" "$cursor_conf_dir/default"
 }
 
 # === XDG - 3.16.6 ===
 #
-# https://docs.voidlinux.org/config/graphical-session/portals.html
-setup_xdg() {
-	echo ""
-	echo "Setup XDG"
-	echo "---"
+# https://docs.voidlinux.org/config/graphical-yession/portals.html
+xdg() {
+	header "Setup XDG"
 	sudo xbps-install -y xdg-desktop-portal xdg-desktop-portal-gtk dex
 	# setup dex
 }
@@ -303,11 +271,9 @@ setup_xdg() {
 # req.: dbus user session bus         -> correct dm & wm config solves
 # === XDG_RUNTIME_DIR defined       -> elogind solves ===
 # === user with audio & video group -> elogind solves ===
-setup_audio() {
-	echo ""
-	echo "Setup Audio with Pipewire & Integrations"
-	echo "---"
-	sudo xbps-install -y pipewire alsa-utils pulseaudio-utils pavucontrol
+audio() {
+	header "Setup Audio with Pipewire & Integrations"
+	sudo xbps-install -y pipewire alsa-utils pulseaudio-utils pavucontrol alsa-pipewire
 	# enable wireplumber session manager
 	sudo mkdir -p /etc/pipewire/pipewire.conf.d
 	sudo ln -sf /usr/share/examples/wireplumber/10-wireplumber.conf /etc/pipewire/pipewire.conf.d/
@@ -326,32 +292,26 @@ setup_audio() {
 # Test on a machine with bluetooth
 #
 # https://docs.voidlinux.org/config/bluetooth.html
-setup_bluetooth() {
-	echo ""
-	echo "Setup Bluetooth"
-	echo "---"
+bluetooth() {
+	header "Setup Bluetooth"
 	# rfkill | grep -q "bluetooth.* blocked" && rfkill unblock bluetooth
-	sudo xbps-install -s libspa-bluetooth bluez blueman # blueman?
+	sudo xbps-install -y libspa-bluetooth bluez blueman # blueman?
 	sudo ln -sh /etc/sv/bluetoothd /var/service
 }
 
 # === Printing - 3.21 ===
 #
 # https://docs.voidlinux.org/config/print/index.html
-setup_printing() {
-	echo ""
-	echo "Setup Printing"
-	echo "---"
-	sudo xbps-install -s cups cups-filters hplip
+printing() {
+	header "Setup Printing"
+	sudo xbps-install -y cups cups-filters hplip
 	sudo ln -sf /etc/sv/cupsd /var/service
 	echo "Run hp-setup -i to finish printing drivers install"
 }
 
 # === Mouse ===
-setup_mouse() {
-	echo ""
-	echo "Setup Mouse"
-	echo "---"
+mouse() {
+	header "Setup Mouse"
 	sudo xbps-install -y piper libratbag
 	sudo ln -sf /etc/sv/ratbagd /var/service
 	# disable mouse acceleration
@@ -368,30 +328,45 @@ EOF
 }
 
 main() {
-	echo "=== Void Linux setup.sh Start ==="
+	printf "=== Void Linux setup.sh Start ===\n"
 
-	update_and_add_repos_xbps
-	setup_cron
-	setup_apparmor
-	setup_time
-	setup_session
-	setup_graphics_drivers
-	setup_xorg
-	setup_dm_wm
-	change_fonts
-	change_icons
-	change_cursor
-	setup_xdg
-	setup_audio
-	setup_printing
-	setup_mouse
+	repos
+	cron
+	apparmor
+	date
+	session
+	graphics_drivers
+	xorg
+	dm_wm
+	fonts
+	icons
+	cursor
+	xdg
+	audio
+	printing
+	mouse
 
-	# setup_ssd_trim # ssd only
-	# setup_power # laptop only
-	# setup_bluetooth
+	while [ "$1" != "" ]; do
+		case "$1" in
+		--bluetooth)
+			bluetooth
+			shift
+			;;
+		--laptop)
+			power_management
+			shift
+			;;
+		--ssd)
+			ssd_trim
+			shift
+			;;
+		*)
+			shift
+			;;
+		esac
+	done
 
-	echo ""
-	echo "=== Void Linux setup.sh Finish ==="
+	printf "\n=== Void Linux setup.sh Finish ==="
 }
 
-main | tee setup.log
+main | tee "$SCRIPT_DIR/last-setup.log"

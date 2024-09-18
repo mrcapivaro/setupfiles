@@ -37,6 +37,7 @@ htop
 btop
 neofetch
 fastfetch
+lf
 
 neovim
 
@@ -136,6 +137,7 @@ xdg-desktop-portal
 xdg-desktop-portal-gtk
 
 pipewire
+alsa-pipewire
 alsa-utils
 pulseaudio-utils
 pavucontrol
@@ -146,6 +148,10 @@ piper
 cups
 cups-filters
 hplip
+
+
+
+ntfs-3g
 
 
 
