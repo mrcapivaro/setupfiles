@@ -2,7 +2,6 @@
 set -e
 echo "[*] Setup Steam"
 
-# TODO: steam libs
 sudo xbps-install -y \
 	steam \
 	libgcc-32bit \

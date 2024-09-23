@@ -2,7 +2,10 @@
 set -e
 echo "[*] Add repos"
 
-sudo xbps-install -y \
-	void-repo-nonfree \
-	void-repo-multilib \
-	void-repo-multilib-nonfree
+REPOS=(
+	"void-repo-nonfree"
+	"void-repo-multilib"
+	"void-repo-multilib-nonfree"
+)
+
+sudo xbps-install -y "${REPOS[@]}"

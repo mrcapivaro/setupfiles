@@ -3,6 +3,6 @@ set -e
 echo "[*] Setup Minecraft"
 
 sudo xbps-install -y \
-	prismlauncher \
+	PrismLauncher \
 	openjdk17-jre \
 	openjdk21-jre

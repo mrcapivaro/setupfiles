@@ -3,6 +3,31 @@ set -e
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
+DIRS=("common")
+SCRIPTS=()
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	--no-common)
+		unset 'DIRS[0]'
+		DIRS=("${DIRS[@]}")
+		shift
+		;;
+	--dirs)
+		DIRS+=($(echo "$2" | tr ',' ' '))
+		shift 2
+		;;
+	--scripts)
+		SCRIPTS+=($(echo "$2" | tr ',' ' '))
+		shift 2
+		;;
+	*)
+		echo "'$1' is not an option"
+		exit 1
+		;;
+	esac
+done
+
 run_dir_scripts() {
 	local dir="$1"
 	for script in "$SCRIPT_DIR/scripts/$dir"/*; do
@@ -10,37 +35,17 @@ run_dir_scripts() {
 	done
 }
 
-printf "=== Void Linux setup.sh Start ===\n"
+printf "=== Void Linux setup.sh Start ===\n\n"
 
-# TODO: transfer packages/ to shell scripts
+for dir in "${DIRS[@]}"; do
+	run_dir_scripts "$dir"
+done
 
-# TODO: implent --no-common
-run_dir_scripts common
-
-while [ "$1" == "" ]; do
-	case "$1" in
-	--laptop)
-		run_dir_scripts laptop
-		shift
-		;;
-	--gaming)
-		run_dir_scripts gaming
-		shift
-		;;
-	--*)
-    # TODO: remove --
-    local match="$1"
-		for file in "$SCRIPT_DIR/scripts"/*; do
-			if "$file" == "match"; then
-				. "$file"
-			fi
-		done
-		;;
-	*)
-		echo "'$1' is not an option"
-		exit 1
-		;;
-	esac
+for script in "$SCRIPT_DIR/scripts"/*.sh; do
+	script_name=$(basename "$script" .sh)
+	if [[ " ${SCRIPTS[@]} " =~ " $script_name" ]]; then
+		. "$script"
+	fi
 done
 
 printf "\n=== Void Linux setup.sh End ==="
