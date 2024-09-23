@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+# set -e
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 

@@ -6,7 +6,6 @@ sudo xbps-install -y \
 	pipewire \
 	alsa-pipewire \
 	alsa-utils \
-	pipewire-pulse \
 	pulseaudio-utils \
 	pavucontrol-qt
 
@@ -27,6 +26,7 @@ sudo ln -sf \
 	/etc/xdg/autostart/
 
 # alsa integration
+sudo mkdir -p /etc/alsa/conf.d
 sudo ln -sf \
 	/usr/share/alsa/alsa.conf.d/50-pipewire.conf \
 	/etc/alsa/conf.d

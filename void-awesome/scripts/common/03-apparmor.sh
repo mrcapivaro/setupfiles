@@ -1,12 +1,12 @@
 #!/bin/bash
-set -e
+# set -e
 echo "[*] Setup App Armor"
 
 sudo xbps-install -y apparmor
 
 if grep -q "apparmor=1 security=apparmor" /etc/default/grub; then
 	echo "AppArmor is already setup"
-	exit 0
+	return 0
 fi
 
 sudo cp /etc/default/grub /etc/default/grub.bak

@@ -2,9 +2,9 @@
 set -e
 
 PACKAGES=(
-	"md.obsidian.Obsidian "
-	"com.spotify.Client "
-	"dev.vencord.Vesktop "
+	"md.obsidian.Obsidian"
+	"com.spotify.Client"
+	"dev.vencord.Vesktop"
 	"io.github.zen_browser.zen"
 )
 

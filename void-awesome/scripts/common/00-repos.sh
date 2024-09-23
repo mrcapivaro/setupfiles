@@ -9,3 +9,4 @@ REPOS=(
 )
 
 sudo xbps-install -y "${REPOS[@]}"
+sudo xbps-install -S

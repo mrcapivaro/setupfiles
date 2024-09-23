@@ -6,7 +6,7 @@ echo "[*] Setup Esync"
 # Sources(s).:
 # - Lutris: https://github.com/lutris/docs/blob/master/HowToEsync.md
 
-if grep -q "hard nofile"; then
+if grep -q "hard nofile" /etc/security/limits.conf; then
 	echo "Esync is already setup."
 	exit 0
 fi
