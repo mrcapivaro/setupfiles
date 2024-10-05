@@ -21,9 +21,9 @@ sudo ln -sf \
 	/etc/pipewire/pipewire.conf.d/
 
 # Add pipewire to system XDG autostart directory
-sudo ln -sf \
-	/usr/share/applications/pipewire.desktop \
-	/etc/xdg/autostart/
+# sudo ln -sf \
+# 	/usr/share/applications/pipewire.desktop \
+# 	/etc/xdg/autostart/
 
 # alsa integration
 sudo mkdir -p /etc/alsa/conf.d

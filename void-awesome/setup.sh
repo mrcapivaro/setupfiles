@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -e
+set -e
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
@@ -43,7 +43,7 @@ done
 
 for script in "$SCRIPT_DIR/scripts"/*.sh; do
 	script_name=$(basename "$script" .sh)
-	if [[ " ${SCRIPTS[@]} " =~ " $script_name" ]]; then
+	if [[ " ${SCRIPTS[@]} " =~ "$script_name" ]]; then
 		. "$script"
 	fi
 done

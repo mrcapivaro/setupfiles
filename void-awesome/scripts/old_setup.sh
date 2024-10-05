@@ -201,7 +201,7 @@ xorg_setup() {
 # === Display Manager & Window Manager ===
 dm_wm_setup() {
 	header "Setup Display Manager & Window Manager"
-	sudo xbps-install lightdm lightdm-gtk-greeter awesome
+	sudo xbps-install -y lightdm lightdm-gtk-greeter awesome
 	# enable display manager service
 	sudo ln -sf /etc/sv/lightdm /var/service
 	# ensure that the awesome wm starts with dbus-run-yession
