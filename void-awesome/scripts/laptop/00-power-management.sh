@@ -2,7 +2,10 @@
 set -e
 echo "[*] Setup Power Management"
 
-sudo xbps-install -y acpid tlp tlpui
+sudo xbps-install -y acpi tlp tlpui
+
+sudo ln -sf /etc/sv/acpid /var/service
+sudo ln -sf /etc/sv/tlp /var/service
 
 # disable elogind acpid management
 sudo mkdir -p /etc/elogind/logind.conf.d
