@@ -1,13 +1,14 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+
 echo "[*] Setup GPU Drivers"
 
-PACKAGES=()
+packages=()
 
 if lspci | grep -qi "nvidia"; then
-	PACKAGES+=("nvidia" "nvidia-libs-32bit")
+    packages+=("nvidia" "nvidia-libs-32bit")
 else
-	PACKAGES+=("mesa-dri" "mesa-dri-32bit")
+    packages+=("mesa-dri" "mesa-dri-32bit")
 fi
 
-sudo xbps-install -y "${PACKAGES[@]}"
+sudo xbps-install -y "${packages[@]}"

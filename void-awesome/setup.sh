@@ -1,51 +1,58 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
-
-DIRS=("common")
-SCRIPTS=()
-
-while [ "$1" != "" ]; do
-	case "$1" in
-	--no-common)
-		unset 'DIRS[0]'
-		DIRS=("${DIRS[@]}")
-		shift
-		;;
-	--dirs)
-		DIRS+=($(echo "$2" | tr ',' ' '))
-		shift 2
-		;;
-	--scripts)
-		SCRIPTS+=($(echo "$2" | tr ',' ' '))
-		shift 2
-		;;
-	*)
-		echo "'$1' is not an option"
-		exit 1
-		;;
-	esac
-done
+script_dir=$(dirname $(readlink -f $0))
+dirs=("common")
+scripts=()
 
 run_dir_scripts() {
-	local dir="$1"
-	for script in "$SCRIPT_DIR/scripts/$dir"/*; do
-		. "$script"
-	done
+    local root_dir="$1"
+    for script in "$root_dir"/*.sh; do
+        . "$script"
+    done
 }
 
-printf "=== Void Linux setup.sh Start ===\n\n"
-
-for dir in "${DIRS[@]}"; do
-	run_dir_scripts "$dir"
+## Argument parsing
+while [ $# -ne 0 ]; do
+    case "$1" in
+        -n | --no-common)
+            unset 'dirs[0]'
+            dirs=("${dirs[@]}")
+            ;;
+        -d | --dirs)
+            shift
+            dirs+=($(echo "$1" | tr ',' ' '))
+            ;;
+        -s | --scripts)
+            shift
+            scripts+=($(echo "$1" | tr ',' ' '))
+            ;;
+        *)
+            echo "'$1' is not an option."
+            exit 1
+            ;;
+    esac
+    shift
 done
 
-for script in "$SCRIPT_DIR/scripts"/*.sh; do
-	script_name=$(basename "$script" .sh)
-	if [[ " ${SCRIPTS[@]} " =~ "$script_name" ]]; then
-		. "$script"
-	fi
+## Main
+echo "[*] setupfiles"
+echo ""
+
+for dir in "${dirs[@]}"; do
+    echo "Running scripts inside '$script_dir/scripts/$dir':"
+    run_dir_scripts "$script_dir/scripts/$dir"
 done
 
-printf "\n=== Void Linux setup.sh End ==="
+echo ""
+
+for script in "$script_dir/scripts"/*.sh; do
+    script_name=$(basename "$script")
+    script_name=${script_name#*-}
+    if [[ " ${scripts[@]} " =~ "${script_name%.sh}" ]]; then
+        echo "Running '$script':"
+        . "$script"
+    fi
+done
+
+exit

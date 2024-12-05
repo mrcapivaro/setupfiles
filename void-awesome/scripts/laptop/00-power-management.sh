@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 echo "[*] Setup Power Management"
 
 sudo xbps-install -y acpi tlp tlpui

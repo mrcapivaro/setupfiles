@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 echo "[*] Change vm.max_map_count"
 
 sudo mkdir -p /etc/sysctl.d

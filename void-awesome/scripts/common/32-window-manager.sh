@@ -1,13 +1,11 @@
-#!/bin/bash
-set -e
-echo "[*] Setup Window Manager(and compositor)"
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[*] Setup Window Manager & Compositor"
 
 sudo xbps-install -y awesome picom
-# ensure that the awesome wm starts with dbus-run-yession
+
+# Ensure that the Awesome WM starts with 'dbus-run-session'.
 sudo sed -i \
     '/^Exec=.*dbus-run-session/!s/\(^Exec=\)\(.*\)/\1dbus-run-session \2/' \
     /usr/share/xsessions/awesome.desktop
-# ensure that a installed xfce polkit does not start with awesome
-sudo sed -i \
-    '/^OnlyShowIn=.*/!s/^NotShowIn=.*/OnlyShowIn=Xfce/' \
-    /etc/xdg/autostart/xfce-polkit.desktop

@@ -1,7 +1,7 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-sudo tee /etc/X11/xorg.conf.d/80-noblank.conf >/dev/null <<EOF
+cat <<EOF > /tmp/80-noblank.conf
 Section "ServerFlags"
     Option    "BlankTime"  "0"
 EndSection
@@ -10,3 +10,5 @@ Section "Extensions"
     Option    "DPMS"  "False"
 EndSection
 EOF
+
+sudo mv /tmp/80-noblank.conf /etc/X11/xorg.conf.d/

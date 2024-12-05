@@ -1,5 +1,6 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+
 echo "[*] Setup Display Manager"
 
 sudo xbps-install -y lightdm lightdm-gtk-greeter

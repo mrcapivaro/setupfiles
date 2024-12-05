@@ -1,9 +1,9 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 echo "[*] Setup Touchpad"
 
 # https://wiki.archlinux.org/title/Touchpad_Synaptics
-sudo mkdir -p /etc/X11/xorg.conf.d
+[[ ! -d /etc/X11/xorg.conf.d ]] && sudo mkdir -p /etc/X11/xorg.conf.d
 sudo tee "/etc/X11/xorg.conf.d/76-synaptics.conf" >/dev/null <<EOF
 Section "InputClass"
     Identifier "touchpad"

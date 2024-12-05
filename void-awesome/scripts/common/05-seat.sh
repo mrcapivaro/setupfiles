@@ -1,5 +1,6 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+
 echo "[*] Setup Session & Seat Management"
 
 sudo xbps-install -y dbus elogind polkit

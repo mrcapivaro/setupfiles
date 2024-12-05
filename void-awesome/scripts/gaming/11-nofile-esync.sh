@@ -1,26 +1,22 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Increase the open files limit.
+# Fixes errors when trying to play some games.
+# https://github.com/lutris/docs/blob/master/HowToEsync.md
+
 echo "[*] Setup Esync"
 
-# Needed: Increase the open files limit
-# Sources(s).:
-# - Lutris: https://github.com/lutris/docs/blob/master/HowToEsync.md
-
-if grep -q "hard nofile" /etc/security/limits.conf; then
-	echo "Esync is already setup."
-	exit 0
+## Check if needed.
+if grep -q "$USER hard nofile 1048576" /etc/security/limits.conf; then
+    echo "Esync is already setup."
+    exit 0
 fi
 
-# Change the limit to 1048576
-sudo tee -a /etc/security/limits.conf >/dev/null <<EOF
-$USER hard nofile 1048576
-EOF
+## Change the limit to 1048576
+sudo bash -c "echo '$USER hard nofile 1048576' >> /etc/security/limits.conf"
 
-sudo tee -a /etc/pam.d/login >/dev/null <<EOF
-session required /lib/security/pam_limits.so
-EOF
-
-# The name of the file after pam.d/ should be the name of the used DM
-sudo tee -a /etc/pam.d/lightdm >/dev/null <<EOF
-session required /lib/security/pam_limits.so
-EOF
+# Needed in void linux for some reason. Got it from a reddit post.
+# I do not remember the source.
+sudo bash -c "echo 'session required /lib/security/pam_limits.so' >> /etc/pam.d/login"
+sudo bash -c "echo 'session required /lib/security/pam_limits.so' >> /etc/pam.d/lightdm"

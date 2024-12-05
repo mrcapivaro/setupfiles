@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 echo "[*] Setup Minecraft"
 
 sudo xbps-install -y \

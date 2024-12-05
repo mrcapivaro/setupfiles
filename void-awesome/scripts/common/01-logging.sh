@@ -1,6 +1,7 @@
-#!/bin/bash
-set -e
-echo "[*] Setup Logging"
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[*] Setup logging"
 
 sudo xbps-install -y socklog-void
 sudo ln -sf /etc/sv/nanoklogd /var/service

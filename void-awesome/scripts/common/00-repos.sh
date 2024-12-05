@@ -1,12 +1,13 @@
-#!/bin/bash
-set -e
-echo "[*] Add repos"
+#!/usr/bin/env bash
+set -euo pipefail
 
-REPOS=(
-	"void-repo-nonfree"
-	"void-repo-multilib"
-	"void-repo-multilib-nonfree"
+echo "[*] Add nonfree and multilib repos"
+
+repos=(
+    "void-repo-nonfree"
+    "void-repo-multilib"
+    "void-repo-multilib-nonfree"
 )
 
-sudo xbps-install -y "${REPOS[@]}"
+sudo xbps-install -y "${repos[@]}"
 sudo xbps-install -S
